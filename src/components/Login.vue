@@ -31,17 +31,19 @@
           ref="loginFormRef"
         >
           <!-- 账号输入框 -->
-          <el-form-item prop="account">
+          <el-form-item>
             <div class="input-group">
+              <el-form-item prop="account">
+                <el-input 
+                  v-model="formData.account"
+                  :placeholder="getPlaceholder"
+                />
+              </el-form-item>
               <el-select v-model="accountType" class="prefix-select">
                 <el-option label="账号" value="account" v-if="loginType === 'password'" />
                 <el-option label="手机" value="phone" />
                 <el-option label="邮箱" value="email" />
               </el-select>
-              <el-input 
-                v-model="formData.account"
-                :placeholder="getPlaceholder"
-              />
             </div>
           </el-form-item>
 
@@ -322,7 +324,7 @@ h2 {
 
 :deep(.el-radio-button__inner) {
   width: 100%;
-  height: 40px;
+  height: 44px;
   padding: 0;
   border: 1px solid #e5e7eb;
   border-radius: 8px !important;
@@ -351,77 +353,19 @@ h2 {
   margin-bottom: 20px;
 }
 
-:deep(.el-form-item:last-child) {
-  margin-bottom: 0;
-}
-
-.input-group {
-  display: grid;
-  grid-template-columns: 110px 1fr;
-  gap: 12px;
-  width: 100%;
-}
-
-.prefix-select {
-  width: 100%;
-}
-
-:deep(.prefix-select .el-input__wrapper) {
-  border: 1px solid #e5e7eb;
-  border-radius: 22px;
-  height: 44px;
-  box-shadow: none !important;
-  background-color: #fff;
-  padding: 0 16px;
-}
-
-:deep(.prefix-select .el-select__wrapper) {
-  height: 100%;
-}
-
-:deep(.prefix-select .el-select__selection) {
-  height: 100%;
-  display: flex;
-  align-items: center;
-}
-
-:deep(.prefix-select .el-select__placeholder) {
-  color: #666;
-  font-size: 15px;
-}
-
-:deep(.prefix-select .el-select__caret) {
-  color: #666;
-  font-size: 16px;
-  transition: transform 0.3s;
-  margin-right: 4px;
-}
-
-:deep(.prefix-select .el-select__caret.is-reverse) {
-  transform: rotate(-180deg);
-}
-
-:deep(.prefix-select .el-input__inner) {
-  color: #666;
-  font-size: 15px;
-  font-weight: normal;
-}
-
 :deep(.el-input__wrapper) {
-  border: 1px solid #e5e7eb;
-  border-radius: 22px;
   height: 44px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
   box-shadow: none !important;
   transition: all 0.3s ease;
 }
 
-:deep(.el-input__wrapper:hover),
-:deep(.prefix-select .el-input__wrapper:hover) {
+:deep(.el-input__wrapper:hover) {
   border-color: #1DA1F2;
 }
 
-:deep(.el-input__wrapper.is-focus),
-:deep(.prefix-select .el-input__wrapper.is-focus) {
+:deep(.el-input__wrapper.is-focus) {
   border-color: #1DA1F2;
   box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.2) !important;
 }
@@ -429,6 +373,82 @@ h2 {
 :deep(.el-input__inner) {
   height: 100%;
   color: #1c1e21;
+  font-size: 15px;
+}
+
+:deep(.el-form-item:last-child) {
+  margin-bottom: 0;
+}
+
+.input-group {
+  display: grid;
+  grid-template-columns: 1fr 110px;
+  gap: 12px;
+  width: 100%;
+}
+
+.input-group :deep(.el-form-item) {
+  margin-bottom: 0;
+}
+
+.input-group :deep(.el-form-item__content) {
+  margin: 0;
+}
+
+.prefix-select {
+  width: 100%;
+  order: 2;
+}
+
+:deep(.prefix-select .el-input__wrapper) {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  height: 44px;
+  box-shadow: none !important;
+  background-color: #fff;
+  padding: 0 16px;
+}
+
+:deep(.prefix-select .el-input__wrapper:hover) {
+  border-color: #1DA1F2;
+}
+
+:deep(.prefix-select .el-input__wrapper.is-focus) {
+  border-color: #1DA1F2;
+  box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.2) !important;
+}
+
+:deep(.prefix-select .el-select__wrapper) {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:deep(.prefix-select .el-select__selection) {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+:deep(.prefix-select .el-input__inner) {
+  color: #1c1e21;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: center;
+}
+
+:deep(.prefix-select .el-select__caret) {
+  color: #666;
+  font-size: 16px;
+  transition: transform 0.3s;
+  margin: 0 -4px 0 4px;
+}
+
+:deep(.prefix-select .el-select__caret.is-reverse) {
+  transform: rotate(-180deg);
 }
 
 :deep(.el-select-dropdown.el-popper) {
@@ -474,7 +494,7 @@ h2 {
 .verify-group .el-button {
   width: 130px;
   height: 44px;
-  border-radius: 22px;
+  border-radius: 8px;
   margin: 0;
   font-size: 15px;
   font-weight: bold;

@@ -120,6 +120,9 @@ const showDevelopingMessage = () => {
   width: 100%;
   max-width: 364px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .logo-small {
@@ -141,6 +144,8 @@ h2 {
   font-weight: bold;
   margin-bottom: 32px;
   color: #0F1419;
+  width: 300px;
+  text-align: center;
 }
 
 .login-options {

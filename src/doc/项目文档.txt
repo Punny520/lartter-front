@@ -1,0 +1,8 @@
+Lartter
+项目介绍：
+Lartter是一个类似Twitter(X)的社交网站
+前端采用Vue框架
+图标库使用iconfont网站：https://www.iconfont.cn/
+图标文件
+有以下页面：
+Main.vue是项目的门户页，用户可以在这里进行注册或者登录。
