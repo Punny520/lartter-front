@@ -131,6 +131,9 @@ import { ref, computed } from 'vue'
 import { ArrowLeft, ChatDotRound } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance } from 'element-plus'
+import { authApi } from '../api/auth'
+import type { AccountDto } from '../types/account'
+import { LoginType, VerifyCodeType } from '../types/account'
 
 const props = defineProps<{
   show: boolean
@@ -214,11 +217,55 @@ const handleLogin = async () => {
   try {
     await loginFormRef.value.validate()
     loading.value = true
-    // TODO: 实现登录逻辑
-    ElMessage.success('登录成功')
-    emit('close')
+
+    // 构建登录请求数据
+    const loginData: AccountDto = {}
+
+    // 根据账号类型设置对应字段
+    if (accountType.value === 'account') {
+      loginData.account = formData.value.account
+    } else if (accountType.value === 'phone') {
+      loginData.phone = formData.value.account
+    } else if (accountType.value === 'email') {
+      loginData.email = formData.value.account
+    }
+
+    // 根据登录方式设置对应字段
+    if (loginType.value === 'password') {
+      loginData.password = formData.value.password
+      // 根据账号类型设置登录类型
+      if (accountType.value === 'account') {
+        loginData.loginType = LoginType.ACCOUNT_PASSWORD
+      } else if (accountType.value === 'phone') {
+        loginData.loginType = LoginType.PHONE_PASSWORD
+      } else if (accountType.value === 'email') {
+        loginData.loginType = LoginType.EMAIL_PASSWORD
+      }
+    } else {
+      loginData.verifyCode = formData.value.verifyCode
+      // 设置验证码登录类型
+      if (accountType.value === 'phone') {
+        loginData.loginType = LoginType.PHONE_VERIFY_CODE
+        loginData.verifyCodeType = VerifyCodeType.PHONE
+      } else if (accountType.value === 'email') {
+        loginData.loginType = LoginType.EMAIL_VERIFY_CODE
+        loginData.verifyCodeType = VerifyCodeType.EMAIL
+      }
+    }
+
+    // 调用登录接口
+    const response = await authApi.login(loginData)
+    const { code, msg, data: token } = response.data
+
+    if (code === '1') {
+      ElMessage.success(`登录成功，token: ${token}`)
+      emit('close')
+    } else {
+      ElMessage.error(msg || '登录失败')
+    }
   } catch (error) {
     console.error('登录验证失败:', error)
+    ElMessage.error('登录失败，请检查输入')
   } finally {
     loading.value = false
   }
