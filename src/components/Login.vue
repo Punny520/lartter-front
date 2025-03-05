@@ -127,7 +127,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { ArrowLeft, ChatDotRound } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance } from 'element-plus'
@@ -135,6 +136,7 @@ import { authApi } from '../api/auth'
 import type { AccountDto } from '../types/account'
 import { LoginType, VerifyCodeType } from '../types/account'
 
+const router = useRouter()
 const props = defineProps<{
   show: boolean
 }>()
@@ -148,6 +150,13 @@ const loginType = ref<'password' | 'code'>('password')
 
 // 账号类型
 const accountType = ref<'account' | 'phone' | 'email'>('account')
+
+// 监听登录方式变化
+watch(loginType, (newType) => {
+  if (newType === 'code' && accountType.value === 'account') {
+    accountType.value = 'phone' // 切换到验证码登录时，如果当前是账号，则默认切换到手机号
+  }
+})
 
 // 表单数据
 const formData = ref({
@@ -167,7 +176,8 @@ const rules = {
   ],
   verifyCode: [
     { required: true, message: '请输入验证码', trigger: 'blur' },
-    { len: 6, message: '验证码长度应为6位', trigger: 'blur' }
+    { len: 4, message: '验证码长度应为4位', trigger: 'blur' },
+    { pattern: /^\d{4}$/, message: '验证码必须是4位数字', trigger: 'blur' }
   ]
 }
 
@@ -192,22 +202,63 @@ const getPlaceholder = computed(() => {
 })
 
 // 获取验证码
-const handleGetCode = () => {
+const handleGetCode = async () => {
   if (!formData.value.account) {
     ElMessage.warning('请输入手机号或邮箱')
     return
   }
   
-  isGettingCode.value = true
-  countdown.value = 60
-  
-  const timer = setInterval(() => {
-    countdown.value--
-    if (countdown.value <= 0) {
-      clearInterval(timer)
+  // 验证手机号或邮箱格式
+  if (accountType.value === 'phone') {
+    const phoneReg = /^1[3-9]\d{9}$/
+    if (!phoneReg.test(formData.value.account)) {
+      ElMessage.warning('请输入正确的手机号')
+      return
+    }
+  } else if (accountType.value === 'email') {
+    const emailReg = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/
+    if (!emailReg.test(formData.value.account)) {
+      ElMessage.warning('请输入正确的邮箱')
+      return
+    }
+  }
+
+  try {
+    isGettingCode.value = true
+    const requestData = {
+      verifyCodeType: accountType.value === 'phone' ? VerifyCodeType.PHONE : VerifyCodeType.EMAIL
+    } as const
+    
+    // 根据账号类型设置请求参数
+    if (accountType.value === 'phone') {
+      requestData.phone = formData.value.account
+    } else {
+      requestData.email = formData.value.account
+    }
+
+    const response = await authApi.getVerifyCode(requestData)
+    const { code, msg } = response.data
+
+    if (code === '1') {
+      ElMessage.success('验证码已发送')
+      // 开始倒计时
+      countdown.value = 60
+      const timer = setInterval(() => {
+        countdown.value--
+        if (countdown.value <= 0) {
+          clearInterval(timer)
+          isGettingCode.value = false
+        }
+      }, 1000)
+    } else {
+      ElMessage.error(msg || '验证码获取失败')
       isGettingCode.value = false
     }
-  }, 1000)
+  } catch (error) {
+    console.error('获取验证码失败:', error)
+    ElMessage.error('验证码获取失败')
+    isGettingCode.value = false
+  }
 }
 
 // 登录处理
@@ -242,8 +293,9 @@ const handleLogin = async () => {
         loginData.loginType = LoginType.EMAIL_PASSWORD
       }
     } else {
+      // 验证码登录
       loginData.verifyCode = formData.value.verifyCode
-      // 设置验证码登录类型
+      // 设置验证码登录类型和验证码类型
       if (accountType.value === 'phone') {
         loginData.loginType = LoginType.PHONE_VERIFY_CODE
         loginData.verifyCodeType = VerifyCodeType.PHONE
@@ -258,8 +310,10 @@ const handleLogin = async () => {
     const { code, msg, data: token } = response.data
 
     if (code === '1') {
-      ElMessage.success(`登录成功，token: ${token}`)
+      ElMessage.success('登录成功')
+      localStorage.setItem('token', token)
       emit('close')
+      router.push('/home')
     } else {
       ElMessage.error(msg || '登录失败')
     }
@@ -270,6 +324,14 @@ const handleLogin = async () => {
     loading.value = false
   }
 }
+
+// 检查是否已登录
+onMounted(() => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    router.push('/home')
+  }
+})
 
 const handleGoogleLogin = () => {
   ElMessage.info('Google登录功能正在开发中...')

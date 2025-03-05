@@ -21,4 +21,53 @@
 账号就是account、手机就是phone邮箱就是email验证码就是verifycCode
 请求连接是/account/login，如果登录成功返回的code就是1，msg是success，data里面是token，现在要求登录成功后显示提示登入成功token:xxx
 
-行
+现在需要创建一个主页Home.vue用于登录过后跳转，
+暂时不需要设计布局和样式，只需要显示，登陆成功：token
+如果在Main.vue检测到Token，那么就不需要跳转，直接跳转登录页面
+并且给Home.vue添加一个登出按钮，请求路径为/account/logout方式为get
+
+现在要完成验证码按钮的逻辑，在用户输入手机号或者邮箱后，点击获取验证码按钮
+会发送post请求到/account/get_verify_code，请求体为：
+{
+    "phone": "18888888888",
+    "verifyCodeType": "PHONE"
+}
+响应体为：
+{
+	"code": "1",
+	"msg": "success",
+	"data": null
+}
+1表示验证码已发送，-1验证码获取失败，并且按钮变灰倒计时60s后才能按
+
+完成验证码登录逻辑
+请求连接还是/account/login请求方式是post
+请求体示例：
+{
+    "phone":"18888888888",
+    "verifyCode":"1234",
+    "loginType":"PHONE_VERIFY_CODE"，
+    "verifyCodeType":"PHONE"
+}
+这里面的逻辑是如果登录，则需要带上对应的登录类型
+如果有验证码则需要带上对应的验证码类型。
+响应体
+{
+	"code": "1",
+	"msg": "success",
+	"data": "302cf833-254e-4b74-a161-3770bde41ba5"
+}
+
+接下来，修改注册界面，首先是post方法
+请求链接是/account/register
+请求体示例为：
+{
+    "account": "pppp",
+    "password": "punny1234",
+    "phone": "18888888888",
+    "registerType": "PHONE_VERIFY_CODE",
+    "verifyCode": "2562",
+    "verifyCodeType": "PHONE"
+}
+注册必须用手机或者邮箱验证码，可以用下拉框选择是手机还是邮箱
+验证码按钮以及逻辑和登录界面类似
