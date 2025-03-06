@@ -71,3 +71,118 @@
 }
 注册必须用手机或者邮箱验证码，可以用下拉框选择是手机还是邮箱
 验证码按钮以及逻辑和登录界面类似
+
+现在需要你完成推文卡片的部分，你需要写一个组件叫Post.vue，用来展示一个推文，风格类似twitter
+这个组件可以根据推文的id来获取一个推文并且展示。一般情况是Home.vue先发送请求获取一个推文的id列表，
+然后遍历这个列表渲染出每一个Post.vue所以Post.vue需要像函数一样能够接收一个postId
+接着Post.vue发送get请求/post/get/{postId}，然后后端会返回一个推文的信息：
+{
+	"code": "1",
+	"msg": "success",
+	"data": {
+		"type": 0,
+		"postNormDto": {
+			"id": 1890406142111121408,
+			"text": "大家好，我叫punny今天刚刚注册lartter",
+			"url1": "http://117.72.69.101:9000/lartter-oss/2025-02-14-22-22-00-h31ZQn.JPG",
+			"file1": null,
+			"url2": null,
+			"file2": null,
+			"url3": null,
+			"file3": null,
+			"url4": null,
+			"file4": null,
+			"likeCount": 0,
+			"commentCount": 0,
+			"repostCount": 0,
+			"createBy": 1884990918671466496,
+			"createTime": "2025-02-14T22:22:01",
+			"updateTime": "2025-02-14T22:22:01",
+			"liked": false
+		},
+		"postRepostDto": null,
+		"postQuoteDto": null,
+		"postReplyDto": null
+	}
+}
+首先data里面保存了一个推文的全部信息，type表示推文的类型
+POST_TYPE_NORM = 0; //普通推文
+POST_TYPE_REPOST = 1; //转发推文
+POST_TYPE_QUOTE = 2; //引用推文
+POST_TYPE_REPLY = 3; //回复推文
+我来一个一个介绍这些推文
+首先是普通推文，对应的是postNormDto
+这是后端对应的实体类
+ /**
+     * id
+     */
+    private Long id;
+
+    /**
+     * 文本
+     */
+    private String text;
+
+    /**
+     * url1
+     */
+    private String url1;
+    private MultipartFile file1;
+
+    /**
+     * url2
+     */
+    private String url2;
+    private MultipartFile file2;
+
+    /**
+     * url3
+     */
+    private String url3;
+    private MultipartFile file3;
+
+    /**
+     * url4
+     */
+    private String url4;
+    private MultipartFile file4;
+
+    /**
+     * 点赞数量
+     */
+    private Long likeCount;
+
+    /**
+     * 评论数量
+     */
+    private Long commentCount;
+
+    /**
+     * 转发数量
+     */
+    private Long repostCount;
+
+    /**
+     * 创建人
+     */
+    private Long createBy;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
+
+    /**
+     * 用户是否点赞
+     */
+    private Boolean liked;
+需要展示的有，文字描述、媒体文件(图片或者视频)
+点赞数量、评论数量、转发数量
+是否点赞表示用户是否点赞该推文，也需要渲染就是是红色爱心还是不是红色
+创建时间
+对于媒体文件，需要根据文件的数量就行不同的排布，媒体文件最多4个最少0个
