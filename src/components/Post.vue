@@ -47,7 +47,9 @@
             text
             @click="handleLike"
           >
-            <el-icon><Star /></el-icon>
+            <svg class="like-icon" :class="{ 'liked': postData.postNormDto.liked }" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+              <path d="M512 919.194002l-64.352657-58.361199C219.085764 653.353378 68.191078 516.438079 68.191078 348.900342c0-136.915299 107.180068-244.094344 244.094344-244.094344 77.222779 0 151.3388 35.948747 199.713554 92.53451 48.374754-56.585763 122.490775-92.53451 199.713554-92.53451 136.915299 0 244.094344 107.180068 244.094344 244.094344 0 167.537737-150.894685 304.453037-379.456265 511.933485L512 919.194002z" />
+            </svg>
             <span>{{ formatCount(postData.postNormDto.likeCount) }}</span>
           </el-button>
         </div>
@@ -70,7 +72,7 @@
 
 <script setup lang="ts">
 import { computed, defineProps, defineExpose } from 'vue'
-import { ChatDotRound, RefreshRight, Star } from '@element-plus/icons-vue'
+import { ChatDotRound, RefreshRight } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -299,16 +301,15 @@ defineExpose({
 
 /* 点赞按钮 */
 .like-btn:hover {
-  color: rgb(249, 24, 128);
-  background-color: rgba(249, 24, 128, 0.1);
+  color: #ff4757;
 }
 
 .like-btn.is-liked {
-  color: rgb(249, 24, 128);
+  color: #ff4757;
 }
 
 .like-btn.is-liked:hover {
-  background-color: rgba(249, 24, 128, 0.1);
+  background-color: rgba(255, 71, 87, 0.1);
 }
 
 /* 数字计数 */
@@ -316,5 +317,36 @@ defineExpose({
   font-size: 13px;
   font-weight: 400;
   min-width: 12px;
+}
+
+.like-icon {
+  width: 18px;
+  height: 18px;
+  transition: all 0.2s ease;
+}
+
+.like-icon path {
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 50;
+  transition: all 0.2s ease;
+}
+
+.like-icon.liked path {
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+/* 点赞按钮 */
+.like-btn:hover {
+  color: #ff4757;
+}
+
+.like-btn.is-liked {
+  color: #ff4757;
+}
+
+.like-btn.is-liked:hover {
+  background-color: rgba(255, 71, 87, 0.1);
 }
 </style> 

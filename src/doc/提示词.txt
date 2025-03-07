@@ -186,3 +186,41 @@ POST_TYPE_REPLY = 3; //回复推文
 是否点赞表示用户是否点赞该推文，也需要渲染就是是红色爱心还是不是红色
 创建时间
 对于媒体文件，需要根据文件的数量就行不同的排布，媒体文件最多4个最少0个
+
+现在需要你完成PostNorm.vue的逻辑部分，在拿到从父组件（比如Demo.vue）传来的postId后
+需要向后端发送获取推文信息的请求请求方式是get，比如/post/get/1890406142111121408
+前端响应类似这种
+{
+	"code": "1",
+	"msg": "success",
+	"data": {
+		"type": 0,
+		"postNormDto": {
+			"id": 1890406142111121408,
+			"text": "大家好，我叫punny今天刚刚注册lartter",
+			"url1": "http://117.72.69.101:9000/lartter-oss/2025-02-14-22-22-00-h31ZQn.JPG",
+			"file1": null,
+			"url2": null,
+			"file2": null,
+			"url3": null,
+			"file3": null,
+			"url4": null,
+			"file4": null,
+			"likeCount": 0,
+			"commentCount": 0,
+			"repostCount": 0,
+			"createBy": 1884990918671466496,
+			"avatarUrl": null,
+			"nickName": null,
+			"createTime": "2025-02-14T22:22:01",
+			"updateTime": "2025-02-14T22:22:01",
+			"liked": false
+		},
+		"postRepostDto": null,
+		"postQuoteDto": null,
+		"postReplyDto": null
+	}
+}
+data里面是一个聚合的post，由于该主键是PostNorm,所以每次拿到的数据只有postNormDto，不用关系其他的。
+然后dto中有4个url，分别表示4张图片，如果为null或者空则表示没有，按非空的url数量渲染图片即可。
+写完后可以用这个id测试1890406142111121408，重新写一个测试组件PostNormTest.vue，填入id渲染出一个postNorm.vue
