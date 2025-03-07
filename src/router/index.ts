@@ -19,6 +19,11 @@ const router = createRouter({
       path: '/demo',
       name: 'demo',
       component: () => import('../views/Demo.vue')
+    },
+    {
+      path: '/post-norm-test',
+      name: 'postNormTest',
+      component: () => import('../views/PostNormTest.vue')
     }
   ]
 })

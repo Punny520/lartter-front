@@ -1,8 +1,8 @@
 <template>
-  <div class="post">
+  <div class="post" v-if="effectivePostData">
     <div class="post-content">
       <!-- 文本内容 -->
-      <p class="post-text">{{ postData.postNormDto.text }}</p>
+      <p class="post-text">{{ effectivePostData.postNormDto.text }}</p>
 
       <!-- 媒体文件 -->
       <div class="media-container" v-if="hasMedia" :class="mediaLayoutClass">
@@ -35,7 +35,7 @@
 
       <!-- 时间 -->
       <div class="post-time">
-        {{ formatTime(postData.postNormDto.createTime) }}
+        {{ formatTime(effectivePostData.postNormDto.createTime) }}
       </div>
 
       <!-- 互动数据 -->
@@ -43,26 +43,26 @@
         <div class="action-item">
           <el-button 
             class="action-btn like-btn" 
-            :class="{ 'is-liked': postData.postNormDto.liked }"
+            :class="{ 'is-liked': effectivePostData.postNormDto.liked }"
             text
             @click="handleLike"
           >
-            <svg class="like-icon" :class="{ 'liked': postData.postNormDto.liked }" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+            <svg class="like-icon" :class="{ 'liked': effectivePostData.postNormDto.liked }" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
               <path d="M512 919.194002l-64.352657-58.361199C219.085764 653.353378 68.191078 516.438079 68.191078 348.900342c0-136.915299 107.180068-244.094344 244.094344-244.094344 77.222779 0 151.3388 35.948747 199.713554 92.53451 48.374754-56.585763 122.490775-92.53451 199.713554-92.53451 136.915299 0 244.094344 107.180068 244.094344 244.094344 0 167.537737-150.894685 304.453037-379.456265 511.933485L512 919.194002z" />
             </svg>
-            <span>{{ formatCount(postData.postNormDto.likeCount) }}</span>
+            <span>{{ formatCount(effectivePostData.postNormDto.likeCount) }}</span>
           </el-button>
         </div>
         <div class="action-item">
           <el-button class="action-btn repost-btn" text>
             <el-icon><RefreshRight /></el-icon>
-            <span>{{ formatCount(postData.postNormDto.repostCount) }}</span>
+            <span>{{ formatCount(effectivePostData.postNormDto.repostCount) }}</span>
           </el-button>
         </div>
         <div class="action-item">
           <el-button class="action-btn comment-btn" text>
             <el-icon><ChatDotRound /></el-icon>
-            <span>{{ formatCount(postData.postNormDto.commentCount) }}</span>
+            <span>{{ formatCount(effectivePostData.postNormDto.commentCount) }}</span>
           </el-button>
         </div>
       </div>
@@ -71,27 +71,24 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineProps, defineExpose, defineOptions } from 'vue'
+import { computed, defineProps, defineExpose, ref, watch } from 'vue'
 import { ChatDotRound, RefreshRight } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import 'dayjs/locale/zh-cn'
+import api from '../api'
 
 dayjs.extend(relativeTime)
 dayjs.locale('zh-cn')
 
-// 组件名称定义
-defineOptions({
-  name: 'PostNorm'
-})
-
-// 接收完整的推文数据
+// 接收postId或完整的推文数据
 const props = defineProps<{
-  postData: {
+  postId?: string
+  postData?: {
     type: number
     postNormDto: {
-      id: number
+      id: number | string
       text: string
       url1?: string
       url2?: string
@@ -106,10 +103,39 @@ const props = defineProps<{
   }
 }>()
 
+// 本地状态
+const localPostData = ref<typeof props.postData | null>(null)
+
+// 获取推文数据
+const fetchPostData = async (id: string) => {
+  try {
+    const response = await api.get(`/post/get/${id}`)
+    const { code, data } = response.data
+    if (code === '1' && data) {
+      localPostData.value = data
+    }
+  } catch (error) {
+    ElMessage.error('获取推文失败')
+  }
+}
+
+// 监听postId变化
+watch(() => props.postId, (newId) => {
+  if (newId) {
+    fetchPostData(newId)
+  }
+}, { immediate: true })
+
+// 计算最终使用的数据
+const effectivePostData = computed(() => {
+  return props.postData || localPostData.value
+})
+
 // 处理媒体文件
 const mediaUrls = computed(() => {
+  if (!effectivePostData.value) return []
   const urls = []
-  const { url1, url2, url3, url4 } = props.postData.postNormDto
+  const { url1, url2, url3, url4 } = effectivePostData.value.postNormDto
   if (url1) urls.push(url1)
   if (url2) urls.push(url2)
   if (url3) urls.push(url3)
@@ -152,12 +178,6 @@ const handleLike = async () => {
 const handleMediaClick = (index: number) => {
   // 图片预览由 el-image 组件自动处理
 }
-
-// 导出组件
-defineExpose({
-  handleLike,
-  handleMediaClick
-})
 </script>
 
 <style scoped>

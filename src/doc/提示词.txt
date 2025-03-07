@@ -189,7 +189,8 @@ POST_TYPE_REPLY = 3; //回复推文
 
 现在需要你完成PostNorm.vue的逻辑部分，在拿到从父组件（比如Demo.vue）传来的postId后
 需要向后端发送获取推文信息的请求请求方式是get，比如/post/get/1890406142111121408
-前端响应类似这种
+发送请求可以根据现成提供的写，反正统一请求同一个网关，目前是localhost:8080
+后端响应类似这种
 {
 	"code": "1",
 	"msg": "success",
@@ -221,6 +222,8 @@ POST_TYPE_REPLY = 3; //回复推文
 		"postReplyDto": null
 	}
 }
-data里面是一个聚合的post，由于该主键是PostNorm,所以每次拿到的数据只有postNormDto，不用关系其他的。
+data里面是一个聚合的post，由于该组件是PostNorm,所以每次拿到的数据只有postNormDto，不用关心其他的。
 然后dto中有4个url，分别表示4张图片，如果为null或者空则表示没有，按非空的url数量渲染图片即可。
-写完后可以用这个id测试1890406142111121408，重新写一个测试组件PostNormTest.vue，填入id渲染出一个postNorm.vue
+写完后可以用这个id测试1890406142111121408，重新写一个测试组件PostNormTest.vue，有一个输入框
+可以填入推文id点击查询后发送请求渲染出一个推文。
+你可能注意到里面有用户的头像和昵称，这个先不用管,只需要渲染推文部分即可
