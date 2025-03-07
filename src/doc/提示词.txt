@@ -227,3 +227,26 @@ data里面是一个聚合的post，由于该组件是PostNorm,所以每次拿到
 写完后可以用这个id测试1890406142111121408，重新写一个测试组件PostNormTest.vue，有一个输入框
 可以填入推文id点击查询后发送请求渲染出一个推文。
 你可能注意到里面有用户的头像和昵称，这个先不用管,只需要渲染推文部分即可
+
+接着给PostNorm.vue添加用户头像和用户的昵称
+逻辑是首先获取了推文信息后里面会有一个createBy这个就是这条推文的用户id
+你需要再次向后端发送一个get请求去获取用户的信息
+请求路径为/my/info/show/{id}
+后端响应示例为
+{
+	"code": "1",
+	"msg": "success",
+	"data": {
+		"id": 1884990922446340096,
+		"accountId": 1884990918671466496,
+		"nickname": "punny123",
+		"avatarUrl": "http://117.72.69.101:9000/lartter-oss/2025-01-31-22-04-47-bXrvqY.JPG",
+		"backgroundUrl": "http://117.72.69.101:9000/lartter-oss/2025-01-31-22-04-47-stmuQ9.png",
+		"bio": "lartter新人请多关照",
+		"createTime": "2025-01-30T23:43:52",
+		"updateTime": "2025-01-31T22:04:48",
+		"avatar": null,
+		"background": null
+	}
+}
+你只需要根据头像url显示头像和昵称即可

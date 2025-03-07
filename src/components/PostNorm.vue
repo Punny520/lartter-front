@@ -1,6 +1,16 @@
 <template>
   <div class="post" v-if="effectivePostData">
     <div class="post-content">
+      <!-- 用户信息 -->
+      <div class="user-info">
+        <el-avatar 
+          :size="40" 
+          :src="userDisplayInfo.avatarUrl"
+          class="user-avatar"
+        />
+        <span class="user-nickname">{{ userDisplayInfo.nickname }}</span>
+      </div>
+
       <!-- 文本内容 -->
       <p class="post-text">{{ effectivePostData.postNormDto.text }}</p>
 
@@ -73,7 +83,7 @@
 <script setup lang="ts">
 import { computed, defineProps, defineExpose, ref, watch } from 'vue'
 import { ChatDotRound, RefreshRight } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElAvatar } from 'element-plus'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import 'dayjs/locale/zh-cn'
@@ -82,37 +92,91 @@ import api from '../api'
 dayjs.extend(relativeTime)
 dayjs.locale('zh-cn')
 
+// 用户信息接口
+interface UserInfo {
+  id: string
+  accountId: string
+  nickname: string
+  avatarUrl: string
+  backgroundUrl: string
+  bio: string
+  createTime: string
+  updateTime: string
+}
+
+// 推文数据接口
+interface PostNormDto {
+  id: string
+  text: string
+  url1?: string
+  url2?: string
+  url3?: string
+  url4?: string
+  likeCount: number
+  commentCount: number
+  repostCount: number
+  createTime: string
+  liked: boolean
+  createBy: string
+}
+
+interface PostData {
+  type: number
+  postNormDto: PostNormDto
+}
+
 // 接收postId或完整的推文数据
 const props = defineProps<{
   postId?: string
-  postData?: {
-    type: number
-    postNormDto: {
-      id: number | string
-      text: string
-      url1?: string
-      url2?: string
-      url3?: string
-      url4?: string
-      likeCount: number
-      commentCount: number
-      repostCount: number
-      createTime: string
-      liked: boolean
-    }
-  }
+  postData?: PostData
 }>()
 
 // 本地状态
 const localPostData = ref<typeof props.postData | null>(null)
+const userInfo = ref<UserInfo | null>(null)
+
+// 计算用户显示信息
+const userDisplayInfo = computed(() => ({
+  avatarUrl: userInfo.value?.avatarUrl || '',
+  nickname: userInfo.value?.nickname || '加载中...'
+}))
+
+// 获取用户信息
+const fetchUserInfo = async (userId: string) => {
+  try {
+    const response = await api.get(`/my/info/show/${userId}`, {
+      transformResponse: [(data) => {
+        // 在 JSON.parse 之前处理大数字
+        const processedData = data.replace(/"(id|accountId)"\s*:\s*(\d{15,})/g, '"$1":"$2"')
+        return JSON.parse(processedData)
+      }]
+    })
+    const { code, data } = response.data
+    if (code === '1' && data) {
+      userInfo.value = data
+    }
+  } catch (error) {
+    ElMessage.error('获取用户信息失败')
+  }
+}
 
 // 获取推文数据
 const fetchPostData = async (id: string) => {
   try {
-    const response = await api.get(`/post/get/${id}`)
+    const response = await api.get(`/post/get/${id}`, {
+      transformResponse: [(data) => {
+        // 在 JSON.parse 之前处理大数字
+        const processedData = data.replace(/"createBy"\s*:\s*(\d{15,})/g, '"createBy":"$1"')
+        return JSON.parse(processedData)
+      }]
+    })
     const { code, data } = response.data
     if (code === '1' && data) {
       localPostData.value = data
+      // 获取到推文数据后，立即获取用户信息
+      if (data.postNormDto.createBy) {
+        fetchUserInfo(data.postNormDto.createBy)
+      }
     }
   } catch (error) {
     ElMessage.error('获取推文失败')
@@ -373,5 +437,34 @@ const handleMediaClick = (index: number) => {
 
 .like-btn.is-liked:hover {
   background-color: rgba(255, 71, 87, 0.1);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.user-avatar {
+  flex-shrink: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.user-avatar:hover {
+  opacity: 0.8;
+}
+
+.user-nickname {
+  font-weight: 600;
+  font-size: 15px;
+  color: #0f1419;
+  cursor: pointer;
+}
+
+.user-nickname:hover {
+  text-decoration: underline;
 }
 </style> 
