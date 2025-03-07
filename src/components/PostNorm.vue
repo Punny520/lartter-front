@@ -71,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineProps, defineExpose } from 'vue'
+import { computed, defineProps, defineExpose, defineOptions } from 'vue'
 import { ChatDotRound, RefreshRight } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
@@ -80,6 +80,11 @@ import 'dayjs/locale/zh-cn'
 
 dayjs.extend(relativeTime)
 dayjs.locale('zh-cn')
+
+// 组件名称定义
+defineOptions({
+  name: 'PostNorm'
+})
 
 // 接收完整的推文数据
 const props = defineProps<{

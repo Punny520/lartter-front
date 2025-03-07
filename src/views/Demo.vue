@@ -3,28 +3,28 @@
     <h2>推文展示 Demo</h2>
     <div class="posts-container">
       <!-- 纯文本推文 -->
-      <Post :post-data="textOnlyPost" />
+      <PostNorm :post-data="textOnlyPost" />
 
       <!-- 单图推文 -->
-      <Post :post-data="singleImagePost" />
+      <PostNorm :post-data="singleImagePost" />
 
       <!-- 双图推文 -->
-      <Post :post-data="twoImagesPost" />
+      <PostNorm :post-data="twoImagesPost" />
 
       <!-- 三图推文 -->
-      <Post :post-data="threeImagesPost" />
+      <PostNorm :post-data="threeImagesPost" />
 
       <!-- 四图推文 -->
-      <Post :post-data="fourImagesPost" />
+      <PostNorm :post-data="fourImagesPost" />
 
       <!-- 已点赞推文 -->
-      <Post :post-data="likedPost" />
+      <PostNorm :post-data="likedPost" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import Post from '../components/Post.vue'
+import PostNorm from '../components/PostNorm.vue'
 
 // 测试数据
 const textOnlyPost = {
