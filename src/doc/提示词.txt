@@ -250,3 +250,31 @@ data里面是一个聚合的post，由于该组件是PostNorm,所以每次拿到
 	}
 }
 你只需要根据头像url显示头像和昵称即可
+
+接着完成转发推文的组件，PostRePost.vue
+转发推文组件用于展示转发类型的推文
+由转发人的昵称+被转发的推文组件组成
+首先还是通过父组件传入一个推文id
+然后PostRePost.vue发送get请求/post/get/{postId}来获取转发类型推文的信息
+后端的响应示例为：
+{
+	"code": "1",
+	"msg": "success",
+	"data": {
+		"type": 1, //type为1表示是转发类型的推文信息
+		"postNormDto": null,
+		"postRepostDto": {//如果type为1则是在postRepostDto中
+			"id": 1890406787639672832,//推文的id
+			"originalId": 1890406519032250368,//被转发推文的id
+			"originalType": 0,//被转发推文的类型
+			"repostBy": 1884990918671466496,//转发人id
+			"createTime": "2025-02-14T22:24:35"
+		},
+		"postQuoteDto": null,
+		"postReplyDto": null
+	}
+}
+PostRepost.vue需要根据type去拼接对应的推文组件目前只有type = 0是PostNorm.vue
+通过把originalId传给对应的推文组件，渲染出被转发的推文。
+然后根据repostBy去获取转发人的信息，并将昵称渲染在左上角和twitter类似xxx转发了
+获取推文信息和用户信息的方式可以参考PostNorm.vue

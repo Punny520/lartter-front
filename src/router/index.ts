@@ -24,6 +24,11 @@ const router = createRouter({
       path: '/post-norm-test',
       name: 'postNormTest',
       component: () => import('../views/PostNormTest.vue')
+    },
+    {
+      path: '/post-repost-test',
+      name: 'postRePostTest',
+      component: () => import('../views/PostRePostTest.vue')
     }
   ]
 })
