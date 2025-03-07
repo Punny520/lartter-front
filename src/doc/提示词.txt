@@ -278,3 +278,42 @@ PostRepost.vue需要根据type去拼接对应的推文组件目前只有type = 0
 通过把originalId传给对应的推文组件，渲染出被转发的推文。
 然后根据repostBy去获取转发人的信息，并将昵称渲染在左上角和twitter类似xxx转发了
 获取推文信息和用户信息的方式可以参考PostNorm.vue
+
+接着改进Home.vue让他成为一个真正的主页，用于展示推文
+下面是Home.vue的逻辑：
+首先每次进入Home.vue的时候都会向后端发送get请求来获取推文列表
+请求路径为/post/list/{pageNumber}默认pageNumber为1
+发送请求的方法参照其他组件即可
+后端会返回一个推文的list
+{
+	"code": "1",
+	"msg": "success",
+	"data": [
+		{
+			"id": 1890407922349899776,
+			"postType": 2,
+			"deleted": false
+		},
+		{
+			"id": 1890406787639672832,
+			"postType": 1,
+			"deleted": false
+		},
+		{
+			"id": 1890406519032250368,
+			"postType": 0,
+			"deleted": false
+		},
+		{
+			"id": 1890406142111121408,
+			"postType": 0,
+			"deleted": false
+		}
+	]
+}
+Home.vue需要遍历这个list并且根据推文的PostType选择用合适的推文组件渲染，比如0就是PostNorm.vue
+1就是PostRepost.vue目前先渲染两种即可就是0和1如果是2就不渲染。
+然后在推文列表的末尾会有一个加载更多，就是再次请求并且pageNumber+1即可,如果返回的列表为空那么就是没有了，
+显示到底了
+并且要求样式和布局要好看，可以模仿twitter，色系和Main.vue类似简洁高级，然后为了测试要保留登出按钮和显示token
+
