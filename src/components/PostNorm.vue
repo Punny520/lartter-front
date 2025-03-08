@@ -234,8 +234,59 @@ const formatCount = (count: number) => {
 
 // 处理点赞
 const handleLike = async () => {
-  // TODO: 实现点赞功能
-  ElMessage.info('点赞功能开发中...')
+  if (!effectivePostData.value) return
+  
+  // 检查用户是否已登录
+  const token = localStorage.getItem('token')
+  if (!token) {
+    ElMessage.warning('请先登录后再进行点赞')
+    return
+  }
+  
+  try {
+    const currentPost = effectivePostData.value.postNormDto
+    // 直接使用 props.postId 或从 URL 中获取原始 ID，避免精度丢失
+    let postId = props.postId
+    
+    // 如果没有 props.postId，则尝试使用当前数据中的 ID
+    if (!postId && currentPost) {
+      postId = currentPost.id
+      // 如果 ID 看起来已经丢失精度（末尾是 0），则尝试从 URL 获取
+      if (postId.toString().endsWith('00')) {
+        // 尝试从当前 URL 获取 ID
+        const urlMatch = window.location.href.match(/\/(\d{15,})/)
+        if (urlMatch && urlMatch[1]) {
+          postId = urlMatch[1]
+        }
+      }
+    }
+    
+    const liked = !currentPost.liked // 切换点赞状态
+    
+    console.log('发送点赞请求，ID:', postId) // 调试用
+    
+    // 发送点赞/取消点赞请求
+    const response = await api.post('/post/like', 
+      // 使用字符串模板构建 JSON，确保 ID 不会被 JavaScript 解析为数字
+      JSON.parse(`{"postId":"${postId}","postType":0,"liked":${liked}}`)
+    )
+    
+    const { code, msg } = response.data
+    if (code === '1') {
+      // 点赞成功后重新获取推文数据
+      if (props.postId) {
+        fetchPostData(props.postId)
+      }
+      
+      // 显示操作结果
+      ElMessage.success(liked ? '点赞成功' : '已取消点赞')
+    } else {
+      ElMessage.error(msg || '操作失败')
+    }
+  } catch (error) {
+    ElMessage.error('点赞操作失败，请稍后再试')
+    console.error('点赞错误:', error)
+  }
 }
 
 // 处理媒体点击

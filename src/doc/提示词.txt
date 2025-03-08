@@ -317,3 +317,12 @@ Home.vue需要遍历这个list并且根据推文的PostType选择用合适的推
 显示到底了
 并且要求样式和布局要好看，可以模仿twitter，色系和Main.vue类似简洁高级，然后为了测试要保留登出按钮和显示token
 
+给PostNorm.vue完成点赞逻辑
+请求路径为/post/like,请求方式为post
+请求体示例：
+{
+    "postId":1890406142111121408,//推文id
+    "postType":0,//推文类型
+    "liked":true//true为点赞，false为取消点赞
+}
+也就是当前如果是没有点赞的状态，发送点赞请求就是true否则就是false，点赞后重新获取推文刷新即可
