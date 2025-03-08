@@ -326,3 +326,40 @@ Home.vue需要遍历这个list并且根据推文的PostType选择用合适的推
     "liked":true//true为点赞，false为取消点赞
 }
 也就是当前如果是没有点赞的状态，发送点赞请求就是true否则就是false，点赞后重新获取推文刷新即可
+
+现在要你创建一个新的组件，用来上传推文。
+组件名字叫PostNormUpload.vue
+上传普通推文需要文字描述(必须)然后是最多4张照片也可以没有照片
+文字限制长度400然后需要在主页有一个入口，可以在主页的右边放一个圆形+号按钮用户点击后弹出上传框
+上传框的左上角有一个返回箭头‘<’先完成样式和布局，要求布局好看
+
+接着完成相关逻辑，首先主页Home.vue在第一次进入的时候需要获取一下用户的基本信息，保存在本地可以和token关联
+请求路径为/my/info/show 请求方式为get
+后端的响应示例为：
+{
+	"code": "1",
+	"msg": "success",
+	"data": {
+		"id": 1884990175361105920,
+		"accountId": 1884990170285998080,
+		"nickname": "lartter_aQFuPn",
+		"avatarUrl": "https://www.lartter/defaultavatar.png",
+		"backgroundUrl": "https://www.lartter/defaulbackground.png",
+		"bio": null,
+		"createTime": "2025-01-30T23:40:54",
+		"updateTime": "2025-01-30T23:40:54",
+		"avatar": null,
+		"background": null
+	}
+}
+用户的头像和昵称就在这里取，可以顺便完成个人主页页面MyInfo.vue
+主页可能需要显示用户的头像，作为个人信息页面的入口，当用户点击后会跳转路由至/user-info,传入当前的用户idaccountId
+在Myinfo.vue组件中，是可以根据传入的accountId来获取对应的用户信息并渲染，请求方式为get请求路径为/my/info/show/{accountId}
+后端响应和上面类似，需要根据后端的信息进行渲染用户的信息。
+然后这个组件还要区分是别人的信息还是本用户的信息可以通过查看本地保存的用户accountId如果和请求的accountId一致则不需要另外发送请求，
+直接把本地保存的渲染即可，如果不一致则是查看其他人的用户信息，然后有几个选项卡：
+如果是本用户的信息可以查看的有发帖、我的点赞如果是别人的主页就只能看发帖，这个查询数据的逻辑后面在来，先完成我说的这部分
+
+接着完成PostNormUpload.vue的逻辑，首先头像可以直接在本地获取了
+然后用户发送的请求路径为/post/upload请求方式为post
+

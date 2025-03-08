@@ -29,6 +29,11 @@ const router = createRouter({
       path: '/post-repost-test',
       name: 'postRePostTest',
       component: () => import('../views/PostRePostTest.vue')
+    },
+    {
+      path: '/info/:accountId',
+      name: 'userInfo',
+      component: () => import('../views/MyInfo.vue')
     }
   ]
 })
