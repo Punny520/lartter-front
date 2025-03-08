@@ -92,15 +92,18 @@ const userAvatar = ref('')
 
 // 获取用户信息
 const fetchUserInfo = async () => {
-  try {
-    const token = localStorage.getItem('token')
-    if (!token) return
-    
-    // 这里可以添加获取当前用户信息的逻辑
-    // 暂时使用默认头像
+  // 直接从本地存储获取用户信息
+  const localUserInfo = localStorage.getItem('userInfo')
+  if (localUserInfo) {
+    try {
+      const userData = JSON.parse(localUserInfo)
+      userAvatar.value = userData.avatarUrl
+    } catch (error) {
+      console.error('解析本地用户信息失败:', error)
+      userAvatar.value = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
+    }
+  } else {
     userAvatar.value = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
-  } catch (error) {
-    console.error('获取用户信息失败', error)
   }
 }
 
@@ -171,15 +174,18 @@ const handleSubmit = async () => {
   try {
     // 创建FormData
     const formData = new FormData()
-    formData.append('text', postText.value)
+    // 添加推文类型
+    formData.append('type', '0')
+    // 添加推文内容
+    formData.append('postNormDto.text', postText.value)
     
     // 添加图片
     previewImages.value.forEach((item, index) => {
-      formData.append(`file${index + 1}`, item.file)
+      formData.append(`postNormDto.file${index + 1}`, item.file)
     })
     
     // 发送请求
-    const response = await api.post('/post/add', formData, {
+    const response = await api.post('/post/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

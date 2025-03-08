@@ -362,4 +362,13 @@ Home.vue需要遍历这个list并且根据推文的PostType选择用合适的推
 
 接着完成PostNormUpload.vue的逻辑，首先头像可以直接在本地获取了
 然后用户发送的请求路径为/post/upload请求方式为post
+请求体是表达的形式
+首先是type，因为是普通推文所以是0
+然后是文字内容postNormDto.text
+然后是每个图片的文件
+postNormDto.file1
+postNormDto.file2
+postNormDto.file3
+postNormDto.file4
+有就加上没有就不用,分别对应4张图片
 
